@@ -4,6 +4,7 @@ from pydantic import BaseModel
 app = FastAPI()
 
 BOOKS = [
+      
     {
         "title": "Silent Patient",
         "author": "Alex Michaelides",
@@ -36,6 +37,37 @@ BOOKS = [
         "category": "science fiction",
     },
     {"title": "title1", "author": "author1", "year": 2001, "category": "romance"},
+      {
+        "title": "The Great Gatsby",
+        "author": "F. Scott Fitzgerald",
+        "year": 1925,
+        "category": "classic",
+    },  {
+        "title": "The Great Gatsby 2",
+        "author": "F. Scott Fitzgerald",
+        "year": 1925,
+        "category": "classic",
+    },  {
+        "title": "The Great Gatsby 3",
+        "author": "F. Scott Fitzgerald",
+        "year": 1925,
+        "category": "classic",
+    },  {
+        "title": "Pride and Prejudice 4",
+        "author": "Jane Austen",
+        "year": 1813,
+        "category": "science fiction",
+    },  {
+        "title": "Pride and Prejudice 2",
+        "author": "Jane Austen",
+        "year": 1813,
+        "category": "science fiction",
+    },  {
+        "title": "Pride and Prejudice 3",
+        "author": "Jane Austen",
+        "year": 1813,
+        "category": "science fiction",
+    },
 ]
 
 
@@ -101,3 +133,14 @@ async def delete_book(book_title: str):
             BOOKS.pop(i)
             return {"message": "Book deleted successfully"}
     return {"message": "Book not found"}
+
+@app.get("/books/by_author/{book_author}")
+async def get_books_by_author(book_author: str):
+    books_to_return = []
+    for book in BOOKS:
+        if (
+            book.get("author").casefold() == book_author.casefold()
+        ):
+            books_to_return.append(book)
+    return books_to_return
+    
