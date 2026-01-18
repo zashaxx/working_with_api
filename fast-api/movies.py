@@ -1,12 +1,13 @@
 from typing import Optional
-from fastapi import FastAPI, Path
+from fastapi import FastAPI, Path, Query, HTTPException
 from pydantic import BaseModel, Field
+from starlette import status
 
 app = FastAPI()
 
 
-class Movie: 
-    def __init__(self, id, title, director, rating, description,publication_year):
+class Movie:
+    def __init__(self, id, title, director, rating, description, publication_year):
         self.id = id
         self.title = title
         self.director = director
@@ -43,7 +44,7 @@ MOVIES = [
         "Christopher Nolan",
         9,
         "A mind-bending thriller about dreams within dreams.",
-        2010
+        2010,
     ),
     Movie(
         2,
@@ -51,7 +52,7 @@ MOVIES = [
         "Francis Ford Coppola",
         10,
         "An epic tale of a mafia family and their rise to power.",
-        1972
+        1972,
     ),
     Movie(
         3,
@@ -59,7 +60,7 @@ MOVIES = [
         "Quentin Tarantino",
         9,
         "A darkly comedic crime film with intertwining stories.",
-        1994
+        1994,
     ),
     Movie(
         4,
@@ -67,7 +68,7 @@ MOVIES = [
         "Frank Darabont",
         10,
         "A story of hope and friendship set in a prison.",
-        1994
+        1994,
     ),
     Movie(
         5,
@@ -75,7 +76,7 @@ MOVIES = [
         "Christopher Nolan",
         9,
         "A superhero film that explores the nature of chaos and order.",
-        2008
+        2008,
     ),
     Movie(
         6,
@@ -83,39 +84,45 @@ MOVIES = [
         "Robert Zemeckis",
         8,
         "The life journey of a simple man with a big heart.",
-        1994
+        1994,
     ),
 ]
 
 
-@app.get("/movies/")
+@app.get("/movies/", status_code=status.HTTP_200_OK)
 async def get_movies():
     return MOVIES
 
-@app.get("/movies/{movie_id}")
+
+@app.get("/movies/{movie_id}", status_code=status.HTTP_200_OK)
 async def get_movie(movie_id: int = Path(gt=0)):
     for movie in MOVIES:
         if movie.id == movie_id:
             return movie
+    raise HTTPException(status_code=404, detail="Movie not found")
 
-@app.get("/books/")
-async def read_movie_by_rating (movie_rating : int ):
+
+@app.get("/movies/",status_code=status.HTTP_200_OK)
+async def read_movie_by_rating(movie_rating: int = Query(gt=-1, lt=11)):
     movies_to_return = []
-    for movie in MOVIES :
+    for movie in MOVIES:
         if movie.rating == movie_rating:
             movies_to_return.append(movie)
     return movies_to_return
 
-@app.get("/movies/publication_year/{publication_year}")
-async def read_movie_by_publication_year (publication_year :int = Path(gt = 1800, lt=2026)):
+
+@app.get("/movies/publication_year/{publication_year}",status_code=status.HTTP_200_OK)
+async def read_movie_by_publication_year(
+    publication_year: int = Path(gt=1800, lt=2026)
+):
     movies_to_return = []
-    for movie in MOVIES :
+    for movie in MOVIES:
         if movie.publication_year == publication_year:
             movies_to_return.append(movie)
     return movies_to_return
 
 
-@app.post("/create_movie")
+@app.post("/create_movie", status_code=status.HTTP_201_CREATED)
 async def create_movie(movie_request: Movie_Request):
     new_movie = Movie(**movie_request.model_dump())
     MOVIES.append(find_movie_by_id(new_movie))
@@ -134,17 +141,23 @@ def find_movie_by_id(movie: Movie):
     return movie
 
 
-@app.put("/movies/update_movie")
+@app.put("/movies/update_movie", status_code=status.HTTP_200_OK)
 async def update_movie(movie_request: Movie_Request):
-    for i in range (len(MOVIES)):
-        if  MOVIES[i].id == movie_request.id:
+    movie_changed = False
+    for i in range(len(MOVIES)):
+        if MOVIES[i].id == movie_request.id:
             MOVIES[i] = movie_request
+            movie_changed = True
+    if not movie_changed:
+        raise HTTPException(status_code=404, detail="Movie not found")
 
-@app.delete("/movies/delete_movie/{movie_id}")
+
+@app.delete("/movies/delete_movie/{movie_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_movie(movie_id: int = Path(gt=0)):
-    for i in range (len(MOVIES)):
-        if  MOVIES[i].id == movie_id:
+    movie_changed = False
+    for i in range(len(MOVIES)):
+        if MOVIES[i].id == movie_id:
             MOVIES.pop(i)
-            return {"message":"movie deleted"}
-    return {"message":"movie not found"}
-
+            movie_changed = True
+    if not movie_changed:
+        raise HTTPException(status_code=404, detail="Movie not found")
