@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import FastAPI
+from fastapi import FastAPI, Path
 from pydantic import BaseModel, Field
 
 app = FastAPI()
@@ -93,7 +93,7 @@ async def get_movies():
     return MOVIES
 
 @app.get("/movies/{movie_id}")
-async def get_movie(movie_id: int):
+async def get_movie(movie_id: int = Path(gt=0)):
     for movie in MOVIES:
         if movie.id == movie_id:
             return movie
@@ -107,7 +107,7 @@ async def read_movie_by_rating (movie_rating : int ):
     return movies_to_return
 
 @app.get("/movies/publication_year/{publication_year}")
-async def read_movie_by_publication_year (publication_year :int):
+async def read_movie_by_publication_year (publication_year :int = Path(gt = 1800, lt=2026)):
     movies_to_return = []
     for movie in MOVIES :
         if movie.publication_year == publication_year:
@@ -141,7 +141,7 @@ async def update_movie(movie_request: Movie_Request):
             MOVIES[i] = movie_request
 
 @app.delete("/movies/delete_movie/{movie_id}")
-async def delete_movie(movie_id: int):
+async def delete_movie(movie_id: int = Path(gt=0)):
     for i in range (len(MOVIES)):
         if  MOVIES[i].id == movie_id:
             MOVIES.pop(i)
