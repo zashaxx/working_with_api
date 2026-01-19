@@ -161,3 +161,7 @@ async def delete_movie(movie_id: int = Path(gt=0)):
             movie_changed = True
     if not movie_changed:
         raise HTTPException(status_code=404, detail="Movie not found")
+
+@app.get("/")
+async def read_root():
+    return {"Hello": "World"}
