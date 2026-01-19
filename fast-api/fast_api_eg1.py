@@ -31,3 +31,7 @@ def list_items(
     
     # Filter items by search query
     return {id: item for id, item in DB.items() if q.lower() in item.name.lower()}
+
+@app.get("/linux")
+def linux_info():
+    return {"message": "Hello from Linux"}
