@@ -30,6 +30,10 @@ class UserVerification(BaseModel):
     newpassword: str = Field(min_length=6, max_length=16)
 
 
+# class ChangePhoneNumber(BaseModel):
+#     phone_number: str = Field(min_length=9, max_length=9)
+
+
 @router.get("/todo/me", status_code=status.HTTP_200_OK)
 async def read_user_details(db: db_dependency, user: user_dependency):
     if user is None:
@@ -57,3 +61,19 @@ async def change_user_password(
     db.add(user_model)
     db.commit()
     return {"detail": "Password updated successfully"}
+
+
+@router.put(
+    "/todo/me/change-phone-number/{phone_number}", status_code=status.HTTP_200_OK
+)
+async def change_user_phone_number(
+    db: db_dependency, user: user_dependency, phone_number: str
+):
+    if user is None:
+        raise HTTPException(
+            status_code=401, detail="Not authenticated to perform the request"
+        )
+    user_model = db.query(Users).filter(Users.id == user.get("user_id")).first()
+    user_model.phone_number = phone_number
+    db.commit()
+    return {"detail": "Phone Number updated successfully"}
