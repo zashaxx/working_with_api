@@ -45,6 +45,7 @@ Thumbs.db
 *.sqlite
 *.sqlite3
 todosapp.db
+testdb.db
 
 # Alembic
 alembic.ini.local
