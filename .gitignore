@@ -67,3 +67,22 @@ htmlcov/
 # Distribution / packaging
 pip-log.txt
 pip-delete-this-directory.txt
+
+# Node.js / Frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+.npm
+.eslintcache
+
+# Build outputs
+dist/
+build/
+*.local
+
+# Documentation (project-specific)
+COMPLETE_TODO_APP_GUIDE.md

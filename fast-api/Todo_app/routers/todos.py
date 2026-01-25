@@ -7,7 +7,7 @@ from ..models import Todo as todos
 from .auth import get_current_user
 
 
-router = APIRouter()
+router = APIRouter(prefix="/todos", tags=["todos"])
 
 
 def get_db():
@@ -106,7 +106,7 @@ async def update_todo(
     db.commit()
 
 
-@router.delete("/todos/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_todo(
     db: db_dependency, user: user_dependency, todo_id: int = Path(ge=1)
 ):
@@ -119,8 +119,11 @@ async def delete_todo(
         db.query(todos)
         .filter(todos.id == todo_id)
         .filter(todos.owner_id == user.get("user_id"))
-        .delete()
+        .first()
     )
+
     if todo_model is None:
         raise HTTPException(status_code=404, detail="Todo not found")
+
+    db.delete(todo_model)
     db.commit()
